@@ -55,16 +55,16 @@ envelope.addEventListener("click", async () => {
 
   const t = reduceMotion ? 0 : 1;
   envelope.classList.add("open");
-  setTimeout(() => envelope.classList.add("flap-behind"), 520 * t);
-  setTimeout(() => envelope.classList.add("letter-out"), 760 * t);
+  setTimeout(() => envelope.classList.add("flap-behind"), 950 * t);
+  setTimeout(() => envelope.classList.add("letter-out"), 1000 * t);
   setTimeout(() => {
     envScreen.classList.add("gone");
     invite.classList.add("show");
     invite.setAttribute("aria-hidden", "false");
     document.body.classList.remove("locked");
     startParticles();
-  }, 2200 * t);
-  setTimeout(() => envScreen.remove(), 3200 * t);
+  }, 2600 * t);
+  setTimeout(() => envScreen.remove(), 3600 * t);
 });
 
 // pétalas caindo na tela do envelope
