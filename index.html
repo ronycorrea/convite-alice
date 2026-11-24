@@ -230,8 +230,12 @@
       <div class="map-frame">
         <iframe id="mapFrame" title="Mapa do local da festa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
+      <p class="route-hint">Toque para traçar a rota até a festa:</p>
       <div class="btn-row">
-        <a class="btn btn--primary" id="gmapsLink" target="_blank" rel="noopener">Google Maps</a>
+        <a class="btn btn--primary" id="gmapsLink" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M21.7 11.3l-9-9a1 1 0 0 0-1.4 0l-9 9a1 1 0 0 0 0 1.4l9 9a1 1 0 0 0 1.4 0l9-9a1 1 0 0 0 0-1.4zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/></svg>
+          Rota no Maps
+        </a>
         <a class="btn btn--blue" id="wazeLink" target="_blank" rel="noopener">Waze</a>
       </div>
     </div>
@@ -246,14 +250,21 @@
       <p class="modal-sub">Sua presença é o maior presente! Mas, se quiser mimar a princesa:</p>
       <ul class="gift-list" id="giftList"></ul>
       <div class="pix" id="pixBox" hidden>
-        <p>Prefere enviar um mimo via Pix?</p>
-        <button class="btn btn--ghost" type="button" id="pixCopy">Copiar chave Pix</button>
+        <p class="pix-title">Prefere enviar um mimo via Pix?</p>
+        <p class="pix-sub">Aponte a câmera do app do banco para o QR Code</p>
+        <div class="pix-qr" id="pixQr" role="img" aria-label="QR Code Pix"></div>
+        <p class="pix-key">Chave: <strong id="pixKey"></strong></p>
+        <div class="btn-row">
+          <button class="btn btn--primary" type="button" id="pixCopy">Copiar chave Pix</button>
+          <button class="btn btn--ghost" type="button" id="pixCopyCode">Pix copia e cola</button>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

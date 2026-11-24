@@ -10,10 +10,11 @@ const CONFIG = {
   whatsapp: "",
 
   // Local da festa
+  // ⚠️ EXEMPLO: endereço da Prefeitura de Coari, só para testar a rota. Troque pelo endereço real.
   localNome: "Espaço 7",
-  endereco: "[preencher endereço do Espaço 7]",
-  // Texto usado para buscar no mapa (de preferência o endereço completo com cidade)
-  buscaMapa: "Espaço 7",
+  endereco: "Rua 5 de Setembro, 1000 · Coari - AM",
+  // Destino da rota no Google Maps / Waze (endereço completo com cidade e estado)
+  destinoMapa: "Rua 5 de Setembro, 1000, Coari - AM, 69460-000",
 
   // Sugestões de presentes (provisórias — ajuste à vontade)
   presentes: [
@@ -24,8 +25,13 @@ const CONFIG = {
     { icone: "🍼", titulo: "Fraldas", detalhe: "Tamanho [preencher]" },
   ],
 
-  // Chave Pix opcional. Deixe vazio para esconder o botão.
-  pix: "",
+  // Pix: gera o QR Code e o botão "copiar chave". Deixe chave vazia para esconder.
+  // ⚠️ EXEMPLO: troque pela chave real (CPF, celular com +55, e-mail ou chave aleatória).
+  pix: {
+    chave: "chavepix@exemplo.com",
+    nome: "Alice",      // nome do recebedor (aparece no app do banco)
+    cidade: "Coari",    // cidade do recebedor
+  },
 };
 
 /* ========================================================= */
@@ -224,8 +230,9 @@ $("#rsvpAgain").addEventListener("click", () => {
 let mapLoaded = false;
 $("#locAddress").textContent = CONFIG.endereco;
 $("#locTitle").textContent = CONFIG.localNome;
-const q = encodeURIComponent(CONFIG.buscaMapa);
-$("#gmapsLink").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+const q = encodeURIComponent(CONFIG.destinoMapa);
+// Rota automática: sem "origin", o Google Maps usa a localização atual de quem abriu
+$("#gmapsLink").href = `https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=driving`;
 $("#wazeLink").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 function loadMap() {
   if (mapLoaded) return;
@@ -237,12 +244,46 @@ function loadMap() {
 $("#giftList").innerHTML = CONFIG.presentes
   .map((g, i) => `<li style="animation-delay:${0.08 * i}s"><span class="gi">${g.icone}</span><span>${g.titulo}<small>${g.detalhe}</small></span></li>`)
   .join("");
-if (CONFIG.pix) {
+if (CONFIG.pix && CONFIG.pix.chave) {
+  const { chave, nome, cidade } = CONFIG.pix;
+  const codigo = pixPayload(chave, nome, cidade);
   $("#pixBox").hidden = false;
-  $("#pixCopy").addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText(CONFIG.pix); toast("Chave Pix copiada! 💝"); }
-    catch { toast("Chave Pix: " + CONFIG.pix); }
-  });
+  $("#pixKey").textContent = chave;
+  if (window.qrcode) {
+    const qr = qrcode(0, "M");
+    qr.addData(codigo);
+    qr.make();
+    $("#pixQr").innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
+  }
+  $("#pixCopy").addEventListener("click", () => copy(chave, "Chave Pix copiada! 💝"));
+  $("#pixCopyCode").addEventListener("click", () => copy(codigo, "Código Pix copia e cola copiado! 💝"));
+}
+
+/* Monta o código Pix (BR Code estático, padrão do Banco Central) */
+function pixPayload(chave, nome, cidade) {
+  const clean = (s, max) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9 ]/g, "").toUpperCase().slice(0, max);
+  const f = (id, v) => id + String(v.length).padStart(2, "0") + v;
+  const conta = f("00", "br.gov.bcb.pix") + f("01", chave.trim());
+  let p = f("00", "01") + f("26", conta) + f("52", "0000") + f("53", "986") + f("58", "BR") +
+    f("59", clean(nome || "N", 25)) + f("60", clean(cidade || "BRASIL", 15)) + f("62", f("05", "***")) + "6304";
+  return p + crc16(p);
+}
+function crc16(str) {
+  let crc = 0xffff;
+  for (const b of new TextEncoder().encode(str)) {
+    crc ^= b << 8;
+    for (let i = 0; i < 8; i++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+async function copy(text, msg) {
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast(msg); } catch { toast(text); }
+    ta.remove();
+  }
 }
 
 /* ---------- Utilidades ---------- */
