@@ -55,17 +55,32 @@ envelope.addEventListener("click", async () => {
 
   const t = reduceMotion ? 0 : 1;
   envelope.classList.add("open");
-  setTimeout(() => envelope.classList.add("flap-behind"), 450 * t);
-  setTimeout(() => envelope.classList.add("letter-out"), 650 * t);
+  setTimeout(() => envelope.classList.add("flap-behind"), 520 * t);
+  setTimeout(() => envelope.classList.add("letter-out"), 760 * t);
   setTimeout(() => {
     envScreen.classList.add("gone");
     invite.classList.add("show");
     invite.setAttribute("aria-hidden", "false");
     document.body.classList.remove("locked");
     startParticles();
-  }, 1900 * t);
-  setTimeout(() => envScreen.remove(), 2900 * t);
+  }, 2200 * t);
+  setTimeout(() => envScreen.remove(), 3200 * t);
 });
+
+// pétalas caindo na tela do envelope
+if (!reduceMotion) {
+  const box = $("#envPetals");
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement("span");
+    p.className = "petal";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.animationDuration = 10 + Math.random() * 8 + "s";
+    p.style.animationDelay = -Math.random() * 16 + "s";
+    p.style.setProperty("--sx", (Math.random() * 160 - 80) + "px");
+    p.style.scale = 0.6 + Math.random() * 0.7;
+    box.appendChild(p);
+  }
+}
 
 /* ---------- Encaixar o convite numa tela só (sem rolar) ---------- */
 const card = $("#card");

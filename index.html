@@ -46,29 +46,40 @@
 
   <!-- ================= ENVELOPE ================= -->
   <section id="envelopeScreen" class="envelope-screen" aria-label="Envelope do convite">
-    <div class="sky-clouds" aria-hidden="true"><span></span><span></span><span></span></div>
-    <img class="corner corner--tl" src="assets/roses-l.png" alt="" />
-    <img class="corner corner--tr" src="assets/roses-r.png" alt="" />
+    <div class="bokeh" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="env-petals" id="envPetals" aria-hidden="true"></div>
 
-    <p class="envelope-kicker">Uma mensagem real chegou para você ✨</p>
+    <p class="envelope-kicker">Uma mensagem real chegou para você</p>
 
     <button id="envelope" class="envelope" type="button" aria-label="Abrir o convite">
-      <span class="env-back"></span>
-      <span class="letter">
-        <span class="letter-inner">
-          <svg class="letter-apple"><use href="#apple" /></svg>
-          <span class="letter-name">Alice</span>
-          <span class="letter-age">1 ano</span>
+      <span class="env-shadow" aria-hidden="true"></span>
+      <span class="env-3d" aria-hidden="true">
+        <span class="env-back"></span>
+        <span class="letter">
+          <span class="letter-inner">
+            <span class="letter-kicker">Você está convidado</span>
+            <svg class="letter-apple"><use href="#apple" /></svg>
+            <span class="letter-name">Alice</span>
+            <span class="letter-age">1 ano</span>
+          </span>
         </span>
+        <span class="env-pockets">
+          <span class="env-pocket env-pocket--left"></span>
+          <span class="env-pocket env-pocket--right"></span>
+          <span class="env-pocket env-pocket--bottom"></span>
+        </span>
+        <span class="env-to">Para: príncipes e princesas<br />dos reinos vizinhos</span>
+        <span class="flap-shadow"><span></span></span>
+        <span class="env-flap">
+          <span class="flap-face flap-face--front"></span>
+          <span class="flap-face flap-face--back"></span>
+        </span>
+        <span class="seal">
+          <span class="seal-ring"></span>
+          <svg><use href="#apple" /></svg>
+        </span>
+        <span class="env-gloss"></span>
       </span>
-      <span class="env-pocket env-pocket--left"></span>
-      <span class="env-pocket env-pocket--right"></span>
-      <span class="env-pocket env-pocket--bottom"></span>
-      <span class="env-flap"></span>
-      <span class="seal">
-        <svg><use href="#apple" /></svg>
-      </span>
-      <span class="env-to">Para: príncipes e princesas<br />dos reinos vizinhos</span>
     </button>
 
     <p class="envelope-hint"><span class="tap-dot"></span> Toque no selo para abrir</p>
