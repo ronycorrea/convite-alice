@@ -10,8 +10,8 @@ const CONFIG = {
 
   // Banco de dados (Supabase) que guarda as confirmações de presença.
   // Use a URL do projeto e a chave PÚBLICA (anon ou publishable). Nunca a service_role/secret.
-  supabaseUrl: "",
-  supabaseKey: "",
+  supabaseUrl: "https://vosrrlnvvvfcfmbbqwdx.supabase.co",
+  supabaseKey: "sb_publishable_VTV0sb9TAoorMqIXGMlO4Q_AbrAKq9n",
 
   // WhatsApp (opcional): DDI + DDD + número, só dígitos. Ex.: "5597999998888".
   // Se preenchido, depois de confirmar aparece o botão "Avisar também pelo WhatsApp".
