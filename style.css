@@ -647,3 +647,13 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .form-note { font-size: 12px; font-weight: 600; font-style: italic; opacity: .75; text-align: center; }
 .thanks-sub { font-family: var(--script2); font-size: 26px; color: var(--red); }
 .btn[disabled] { opacity: .65; pointer-events: none; }
+
+/* Pix: só a chave para copiar */
+.pix-card {
+  width: 100%; display: grid; gap: 2px; justify-items: center;
+  padding: 12px 14px; border-radius: 14px; background: #fff;
+  border: 2px dashed var(--gold);
+}
+.pix-label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+.pix-card .pix-key { font-size: 22px; color: var(--red); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.pix .pix-btn { width: 100%; margin-top: 4px; font-size: 15px; padding: 13px 16px; }

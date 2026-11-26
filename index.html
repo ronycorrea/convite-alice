@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Meu Convite</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <meta name="description" content="Você está convidado para o aniversário de 1 ano da Jade Helena! Domingo, 31.01, às 18:00." />
+  <meta name="description" content="Você está convidado para o aniversário de 1 ano da Jade Helena! Domingo, 31.01, às 11:00." />
   <meta property="og:title" content="Jade Helena 1 ano · O Reino encantado está em festa!" />
-  <meta property="og:description" content="Domingo, 31.01 às 18:00. Toque para abrir o convite." />
+  <meta property="og:description" content="Domingo, 31.01 às 11:00. Toque para abrir o convite." />
   <meta property="og:image" content="assets/convite-original.jpg" />
   <meta name="theme-color" content="#b3121b" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -128,7 +128,7 @@
         </div>
         <svg class="when-apple bob"><use href="#apple" /></svg>
         <div class="when-block">
-          <span class="big-num" data-text="18:00">18:00</span>
+          <span class="big-num" data-text="11:00">11:00</span>
           <span class="script-sub">horas</span>
         </div>
       </div>
@@ -241,7 +241,7 @@
       <svg class="modal-apple"><use href="#apple" /></svg>
       <h3 id="locTitle">Local da festa</h3>
       <p class="modal-sub" id="locAddress"></p>
-      <p class="modal-sub small">Domingo, 31.01 · 18:00</p>
+      <p class="modal-sub small">Domingo, 31.01 · 11:00</p>
       <div class="map-frame">
         <iframe id="mapFrame" title="Mapa do local da festa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
@@ -266,20 +266,17 @@
       <ul class="gift-list" id="giftList"></ul>
       <div class="pix" id="pixBox" hidden>
         <p class="pix-title">Prefere enviar um mimo via Pix?</p>
-        <p class="pix-sub">Aponte a câmera do app do banco para o QR Code</p>
-        <div class="pix-qr" id="pixQr" role="img" aria-label="QR Code Pix"></div>
-        <p class="pix-key">Chave: <strong id="pixKey"></strong></p>
-        <div class="btn-row">
-          <button class="btn btn--primary" type="button" id="pixCopy">Copiar chave Pix</button>
-          <button class="btn btn--ghost" type="button" id="pixCopyCode">Pix copia e cola</button>
+        <div class="pix-card">
+          <span class="pix-label">Chave Pix · <span id="pixTipo"></span></span>
+          <strong class="pix-key" id="pixKey"></strong>
         </div>
+        <button class="btn btn--primary pix-btn" type="button" id="pixCopy">📋 Copiar chave Pix</button>
       </div>
     </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

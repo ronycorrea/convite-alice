@@ -3,7 +3,7 @@
    ========================================================= */
 const CONFIG = {
   // Data e hora da festa (fuso de Brasília). Usado na contagem regressiva.
-  dataFesta: "2027-01-31T18:00:00-04:00", // horário do Amazonas (UTC-4)
+  dataFesta: "2027-01-31T11:00:00-04:00", // horário do Amazonas (UTC-4)
 
   // Nome usado nas mensagens
   aniversariante: "Jade Helena",
@@ -31,12 +31,11 @@ const CONFIG = {
     { icone: "🧸", titulo: "Brinquedos educativos", detalhe: "Para a idade de 1 ano" },
   ],
 
-  // Pix: gera o QR Code e o botão "copiar chave". Deixe chave vazia para esconder.
-  // ⚠️ EXEMPLO: troque pela chave real (CPF, celular com +55, e-mail ou chave aleatória).
+  // Pix: mostra a chave com o botão "copiar". Deixe chave vazia para esconder.
   pix: {
-    chave: "chavepix@exemplo.com",
-    nome: "Jade Helena", // nome do recebedor (aparece no app do banco)
-    cidade: "Coari",     // cidade do recebedor
+    chave: "97981212569",        // o que é copiado
+    tipo: "Celular",             // tipo de chave para escolher no app do banco
+    exibir: "(97) 98121-2569",   // como aparece na tela
   },
 };
 
@@ -320,36 +319,11 @@ $("#giftList").innerHTML = CONFIG.presentes
   .map((g, i) => `<li style="animation-delay:${0.08 * i}s"><span class="gi">${g.icone}</span><span>${g.titulo}<small>${g.detalhe}</small></span></li>`)
   .join("");
 if (CONFIG.pix && CONFIG.pix.chave) {
-  const { chave, nome, cidade } = CONFIG.pix;
-  const codigo = pixPayload(chave, nome, cidade);
+  const { chave, tipo, exibir } = CONFIG.pix;
   $("#pixBox").hidden = false;
-  $("#pixKey").textContent = chave;
-  if (window.qrcode) {
-    const qr = qrcode(0, "M");
-    qr.addData(codigo);
-    qr.make();
-    $("#pixQr").innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
-  }
+  $("#pixKey").textContent = exibir || chave;
+  $("#pixTipo").textContent = tipo || "";
   $("#pixCopy").addEventListener("click", () => copy(chave, "Chave Pix copiada! 💝"));
-  $("#pixCopyCode").addEventListener("click", () => copy(codigo, "Código Pix copia e cola copiado! 💝"));
-}
-
-/* Monta o código Pix (BR Code estático, padrão do Banco Central) */
-function pixPayload(chave, nome, cidade) {
-  const clean = (s, max) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9 ]/g, "").toUpperCase().slice(0, max);
-  const f = (id, v) => id + String(v.length).padStart(2, "0") + v;
-  const conta = f("00", "br.gov.bcb.pix") + f("01", chave.trim());
-  let p = f("00", "01") + f("26", conta) + f("52", "0000") + f("53", "986") + f("58", "BR") +
-    f("59", clean(nome || "N", 25)) + f("60", clean(cidade || "BRASIL", 15)) + f("62", f("05", "***")) + "6304";
-  return p + crc16(p);
-}
-function crc16(str) {
-  let crc = 0xffff;
-  for (const b of new TextEncoder().encode(str)) {
-    crc ^= b << 8;
-    for (let i = 0; i < 8; i++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
-  }
-  return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 async function copy(text, msg) {
   try { await navigator.clipboard.writeText(text); toast(msg); }
