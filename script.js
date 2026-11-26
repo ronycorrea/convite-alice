@@ -15,7 +15,7 @@ const CONFIG = {
 
   // WhatsApp (opcional): DDI + DDD + número, só dígitos. Ex.: "5597999998888".
   // Se preenchido, depois de confirmar aparece o botão "Avisar também pelo WhatsApp".
-  whatsapp: "",
+  whatsapp: "5597981212569",
 
   // Local da festa (o lugar não está cadastrado no Google Maps, por isso usamos as coordenadas)
   localNome: "Local da festa",
@@ -238,14 +238,25 @@ form.addEventListener("submit", async (e) => {
     recado: (d.recado || "").trim().slice(0, 500) || null,
   };
 
+  // Texto curto para o WhatsApp (sem nome)
+  const msg = dados.vai
+    ? `Oi! 👑 Que felicidade receber o convite da ${CONFIG.aniversariante}! Confirmo presença na festa de 1 aninho. Estaremos lá! 🍎`
+    : `Oi! 💛 Que alegria receber o convite da ${CONFIG.aniversariante}! Infelizmente não vou conseguir ir, mas desejo uma festa linda e muitas felicidades!`;
+  const zap = CONFIG.whatsapp.replace(/\D/g, "");
+  const zapUrl = `https://wa.me/${zap}?text=${encodeURIComponent(msg)}`;
+
+  // Abre a aba do WhatsApp já no clique (celulares bloqueiam janelas abertas depois de esperar a internet)
+  const janela = zap ? window.open("", "_blank") : null;
+
   const btn = form.querySelector("button[type=submit]");
   btn.disabled = true;
   const textoOriginal = btn.innerHTML;
   btn.textContent = "Enviando…";
   try {
-    var salvouNoBanco = await salvarConfirmacao(dados);
+    await salvarConfirmacao(dados);
   } catch (falha) {
     console.error(falha);
+    if (janela) janela.close();
     err.textContent = "Não foi possível enviar agora. Verifique a internet e tente de novo.";
     err.hidden = false;
     btn.disabled = false; btn.innerHTML = textoOriginal;
@@ -253,18 +264,11 @@ form.addEventListener("submit", async (e) => {
   }
   btn.disabled = false; btn.innerHTML = textoOriginal;
 
-  // mensagem pronta para o WhatsApp (opcional)
-  const nomeFesta = `${CONFIG.aniversariante} 1 ano`;
-  let msg = dados.vai
-    ? `👑 *Confirmação de presença – ${nomeFesta}*\n\nNome: ${dados.nome}\nAdultos: ${dados.adultos}\nCrianças: ${dados.criancas}\n\nEstaremos lá! 🍎`
-    : `*${nomeFesta}*\n\nOlá! Aqui é ${dados.nome}. Infelizmente não poderei comparecer. 😢`;
-  if (dados.recado) msg += `\n\nRecado: ${dados.recado}`;
-  const zap = CONFIG.whatsapp.replace(/\D/g, "");
-  const zapBtn = $("#rsvpWhats");
-  zapBtn.hidden = !zap;
-  if (zap) zapBtn.href = `https://wa.me/${zap}?text=${encodeURIComponent(msg)}`;
-  // Sem banco configurado: usa o WhatsApp como antes
-  if (!salvouNoBanco) window.open(`https://wa.me/${zap}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+  // Presença registrada → envia o recadinho no WhatsApp
+  if (zap) {
+    if (janela && !janela.closed) janela.location.href = zapUrl;
+    else window.location.href = zapUrl; // se a aba foi bloqueada, abre na mesma página
+  }
 
   $("#rsvpThanksTitle").textContent = dados.vai ? "Presença confirmada!" : "Resposta enviada";
   $("#rsvpThanksText").textContent = dados.vai
