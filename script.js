@@ -3,34 +3,40 @@
    ========================================================= */
 const CONFIG = {
   // Data e hora da festa (fuso de Brasília). Usado na contagem regressiva.
-  dataFesta: "2027-01-15T18:00:00-03:00",
+  dataFesta: "2027-01-31T18:00:00-04:00", // horário do Amazonas (UTC-4)
 
-  // WhatsApp que recebe as confirmações: DDI + DDD + número, só dígitos.
-  // Ex.: "5511999998888". Se ficar vazio, o WhatsApp abre para a pessoa escolher o contato.
+  // Nome usado nas mensagens
+  aniversariante: "Jade Helena",
+
+  // Banco de dados (Supabase) que guarda as confirmações de presença.
+  // Use a URL do projeto e a chave PÚBLICA (anon ou publishable). Nunca a service_role/secret.
+  supabaseUrl: "",
+  supabaseKey: "",
+
+  // WhatsApp (opcional): DDI + DDD + número, só dígitos. Ex.: "5597999998888".
+  // Se preenchido, depois de confirmar aparece o botão "Avisar também pelo WhatsApp".
   whatsapp: "",
 
-  // Local da festa
-  // ⚠️ EXEMPLO: endereço da Prefeitura de Coari, só para testar a rota. Troque pelo endereço real.
-  localNome: "Espaço 7",
-  endereco: "Rua 5 de Setembro, 1000 · Coari - AM",
-  // Destino da rota no Google Maps / Waze (endereço completo com cidade e estado)
-  destinoMapa: "Rua 5 de Setembro, 1000, Coari - AM, 69460-000",
+  // Local da festa (o lugar não está cadastrado no Google Maps, por isso usamos as coordenadas)
+  localNome: "Local da festa",
+  endereco: "Rua do Cauá · Bairro Itamarati",
+  coordenadas: "-4.092949156064189,-63.14113510740256",
 
-  // Sugestões de presentes (provisórias — ajuste à vontade)
+  // Sugestões de presentes
   presentes: [
-    { icone: "👗", titulo: "Roupinhas", detalhe: "Tamanho [preencher]" },
-    { icone: "👟", titulo: "Calçados", detalhe: "Número [preencher]" },
-    { icone: "📚", titulo: "Livrinhos infantis", detalhe: "De pano, banho ou cartonados" },
+    { icone: "🍼", titulo: "Fraldas", detalhe: "Tamanho G" },
+    { icone: "👗", titulo: "Roupinhas", detalhe: "Tamanho 1 a 2 anos" },
+    { icone: "👟", titulo: "Sapatinhos", detalhe: "Número 21/22" },
+    { icone: "🧴", titulo: "Produtos de higiene", detalhe: "Sabonete, shampoo, lenços…" },
     { icone: "🧸", titulo: "Brinquedos educativos", detalhe: "Para a idade de 1 ano" },
-    { icone: "🍼", titulo: "Fraldas", detalhe: "Tamanho [preencher]" },
   ],
 
   // Pix: gera o QR Code e o botão "copiar chave". Deixe chave vazia para esconder.
   // ⚠️ EXEMPLO: troque pela chave real (CPF, celular com +55, e-mail ou chave aleatória).
   pix: {
     chave: "chavepix@exemplo.com",
-    nome: "Alice",      // nome do recebedor (aparece no app do banco)
-    cidade: "Coari",    // cidade do recebedor
+    nome: "Jade Helena", // nome do recebedor (aparece no app do banco)
+    cidade: "Coari",     // cidade do recebedor
   },
 };
 
@@ -215,44 +221,94 @@ document.addEventListener("keydown", (e) => {
 
 /* ---------- Confirmar presença ---------- */
 const form = $("#rsvpForm");
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const d = Object.fromEntries(new FormData(form));
   const nome = (d.nome || "").trim();
-  $("#rsvpError").hidden = !!nome;
-  if (!nome) { form.nome.focus(); return; }
+  const err = $("#rsvpError");
+  if (!nome) { err.textContent = "Por favor, informe seu nome."; err.hidden = false; form.nome.focus(); return; }
+  err.hidden = true;
 
-  const vai = d.resposta === "sim";
-  let msg = vai
-    ? `👑 *Confirmação de presença – Alice 1 ano*\n\nNome: ${nome}\nAdultos: ${d.adultos || 0}\nCrianças: ${d.criancas || 0}\n\nEstaremos lá! 🍎`
-    : `*Alice 1 ano*\n\nOlá! Aqui é ${nome}. Infelizmente não poderei comparecer. 😢`;
-  if (d.recado && d.recado.trim()) msg += `\n\nRecado: ${d.recado.trim()}`;
+  const num = (n) => Math.max(0, Math.min(20, parseInt(n, 10) || 0));
+  const dados = {
+    nome: nome.slice(0, 120),
+    adultos: num(d.adultos),
+    criancas: num(d.criancas),
+    vai: d.resposta === "sim",
+    recado: (d.recado || "").trim().slice(0, 500) || null,
+  };
 
-  const num = CONFIG.whatsapp.replace(/\D/g, "");
-  const url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
-  window.open(url, "_blank", "noopener");
+  const btn = form.querySelector("button[type=submit]");
+  btn.disabled = true;
+  const textoOriginal = btn.innerHTML;
+  btn.textContent = "Enviando…";
+  try {
+    var salvouNoBanco = await salvarConfirmacao(dados);
+  } catch (falha) {
+    console.error(falha);
+    err.textContent = "Não foi possível enviar agora. Verifique a internet e tente de novo.";
+    err.hidden = false;
+    btn.disabled = false; btn.innerHTML = textoOriginal;
+    return;
+  }
+  btn.disabled = false; btn.innerHTML = textoOriginal;
 
+  // mensagem pronta para o WhatsApp (opcional)
+  const nomeFesta = `${CONFIG.aniversariante} 1 ano`;
+  let msg = dados.vai
+    ? `👑 *Confirmação de presença – ${nomeFesta}*\n\nNome: ${dados.nome}\nAdultos: ${dados.adultos}\nCrianças: ${dados.criancas}\n\nEstaremos lá! 🍎`
+    : `*${nomeFesta}*\n\nOlá! Aqui é ${dados.nome}. Infelizmente não poderei comparecer. 😢`;
+  if (dados.recado) msg += `\n\nRecado: ${dados.recado}`;
+  const zap = CONFIG.whatsapp.replace(/\D/g, "");
+  const zapBtn = $("#rsvpWhats");
+  zapBtn.hidden = !zap;
+  if (zap) zapBtn.href = `https://wa.me/${zap}?text=${encodeURIComponent(msg)}`;
+  // Sem banco configurado: usa o WhatsApp como antes
+  if (!salvouNoBanco) window.open(`https://wa.me/${zap}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+
+  $("#rsvpThanksTitle").textContent = dados.vai ? "Presença confirmada!" : "Resposta enviada";
+  $("#rsvpThanksText").textContent = dados.vai
+    ? "Que alegria! Sua presença foi registrada. Nos vemos na festa! 👑"
+    : "Que pena! Obrigado por avisar com carinho. 💛";
   form.hidden = true;
   $("#rsvpThanks").hidden = false;
-  if (vai) confetti();
+  if (dados.vai) confetti();
 });
 $("#rsvpAgain").addEventListener("click", () => {
   form.hidden = false;
   $("#rsvpThanks").hidden = true;
 });
 
+/* Grava a confirmação no Supabase (tabela public.confirmacoes) */
+async function salvarConfirmacao(dados) {
+  if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) {
+    return false; // banco ainda não configurado
+  }
+  const resp = await fetch(`${CONFIG.supabaseUrl.replace(/\/$/, "")}/rest/v1/confirmacoes`, {
+    method: "POST",
+    headers: {
+      apikey: CONFIG.supabaseKey,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(dados),
+  });
+  if (!resp.ok) throw new Error(`Supabase respondeu HTTP ${resp.status}: ${await resp.text()}`);
+  return true;
+}
+
 /* ---------- Localização ---------- */
 let mapLoaded = false;
 $("#locAddress").textContent = CONFIG.endereco;
 $("#locTitle").textContent = CONFIG.localNome;
-const q = encodeURIComponent(CONFIG.destinoMapa);
-// Rota automática: sem "origin", o Google Maps usa a localização atual de quem abriu
-$("#gmapsLink").href = `https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=driving`;
-$("#wazeLink").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+const coords = CONFIG.coordenadas.replace(/\s/g, "");
+// Rota automática até as coordenadas: sem "origin", o Google Maps usa a localização atual de quem abriu
+$("#gmapsLink").href = `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
+$("#wazeLink").href = `https://waze.com/ul?ll=${coords}&navigate=yes`;
 function loadMap() {
   if (mapLoaded) return;
   mapLoaded = true;
-  $("#mapFrame").src = `https://maps.google.com/maps?q=${q}&z=16&output=embed`;
+  $("#mapFrame").src = `https://maps.google.com/maps?q=${coords}&z=17&output=embed`;
 }
 
 /* ---------- Presentes ---------- */

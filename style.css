@@ -147,7 +147,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .letter-inner { display: flex; flex-direction: column; align-items: center; transform: translateY(-16%); }
 .letter-kicker { font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #a07a2c; }
 .letter-apple { width: 28px; height: 28px; margin-top: 4px; }
-.letter-name { font-family: var(--script); font-size: clamp(46px, 14vw, 64px); color: var(--red); line-height: 1; text-shadow: 0 2px 0 rgba(140, 10, 20, .15); }
+.letter-name { font-family: var(--script); font-size: clamp(38px, 10.5vw, 50px); white-space: nowrap; color: var(--red); line-height: 1; text-shadow: 0 2px 0 rgba(140, 10, 20, .15); }
 .letter-age { font-family: var(--script2); color: #b8892a; font-size: 22px; }
 
 /* bolsos da frente (com sombra nas dobras) */
@@ -309,7 +309,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .card.wide .corner--tr { -webkit-mask-image: linear-gradient(to left, #000 70%, transparent); mask-image: linear-gradient(to left, #000 70%, transparent); }
 .card.wide .plaque-wrap { margin-top: 46px; }
 .card.wide .plaque { width: 400px; }
-.card.wide .name { font-size: 112px; }
+.card.wide .name { font-size: 72px; }
 .card.wide .age { font-size: 42px; }
 .card.wide .plaque-apple { width: 76px; height: 76px; margin-left: -38px; top: -52px; }
 .card.wide .plaque-bird { width: 86px; top: -58px; }
@@ -396,7 +396,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .plaque-inner { text-align: center; transform: translateZ(30px); }
 .name {
   font-family: var(--script); font-weight: 400;
-  font-size: clamp(64px, 20vw, 92px); line-height: .95; color: #fff;
+  font-size: clamp(44px, 12.5vw, 58px); white-space: nowrap; line-height: .95; color: #fff;
   text-shadow: 0 1px 0 #f3d9d9, 0 2px 0 #e7c3c3, 0 3px 0 #d6a5a5, 0 6px 10px rgba(60, 0, 0, .5);
 }
 .age {
@@ -634,3 +634,15 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .envelope-kicker, .envelope-hint { transition: opacity .4s ease; }
 .envelope-screen:has(.envelope.open) .envelope-kicker,
 .envelope-screen:has(.envelope.open) .envelope-hint { opacity: 0; }
+
+/* aviso educado sobre acompanhantes */
+.notice {
+  position: relative; z-index: 2;
+  max-width: 340px; margin-top: 8px; text-align: center;
+  font-size: 12px; font-weight: 600; line-height: 1.35; font-style: italic;
+  color: rgba(90, 58, 34, .72);
+}
+.card.wide .notice { font-size: 13.5px; max-width: 440px; }
+.form-note { font-size: 12px; font-weight: 600; font-style: italic; opacity: .75; text-align: center; }
+.thanks-sub { font-family: var(--script2); font-size: 26px; color: var(--red); }
+.btn[disabled] { opacity: .65; pointer-events: none; }

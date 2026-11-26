@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Meu Convite</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <meta name="description" content="Você está convidado para o aniversário de 1 ano da Alice! 15.01, domingo, às 18:00 no Espaço 7." />
-  <meta property="og:title" content="Alice 1 ano · O Reino encantado está em festa!" />
-  <meta property="og:description" content="Domingo, 15.01 às 18:00 · Espaço 7. Toque para abrir o convite." />
+  <meta name="description" content="Você está convidado para o aniversário de 1 ano da Jade Helena! Domingo, 31.01, às 18:00." />
+  <meta property="og:title" content="Jade Helena 1 ano · O Reino encantado está em festa!" />
+  <meta property="og:description" content="Domingo, 31.01 às 18:00. Toque para abrir o convite." />
   <meta property="og:image" content="assets/convite-original.jpg" />
   <meta name="theme-color" content="#b3121b" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -60,7 +60,7 @@
           <span class="letter-inner">
             <span class="letter-kicker">Você está convidado</span>
             <svg class="letter-apple"><use href="#apple" /></svg>
-            <span class="letter-name">Alice</span>
+            <span class="letter-name">Jade Helena</span>
             <span class="letter-age">1 ano</span>
           </span>
         </span>
@@ -108,7 +108,7 @@
           <img class="plaque-bird plaque-bird--l" src="assets/bluebird.png" alt="" />
           <img class="plaque-bird plaque-bird--r" src="assets/bluebird.png" alt="" />
           <div class="plaque-inner">
-            <h1 class="name">Alice</h1>
+            <h1 class="name">Jade Helena</h1>
             <p class="age">1 ano</p>
           </div>
           <span class="shine" aria-hidden="true"></span>
@@ -123,7 +123,7 @@
 
       <div class="when reveal" style="--d:3">
         <div class="when-block">
-          <span class="big-num" data-text="15.01">15.01</span>
+          <span class="big-num" data-text="31.01">31.01</span>
           <span class="script-sub">domingo</span>
         </div>
         <svg class="when-apple bob"><use href="#apple" /></svg>
@@ -133,7 +133,6 @@
         </div>
       </div>
 
-      <p class="place reveal" style="--d:4">Espaço 7</p>
 
       <div class="countdown reveal" style="--d:4" id="countdown" aria-live="off">
         <span class="cd-label">faltam</span>
@@ -145,6 +144,11 @@
         <span class="cd-sep">·</span>
         <span class="cd-item"><b id="cdS">00</b>s</span>
       </div>
+
+      <p class="notice reveal" style="--d:5">
+        Com todo carinho: este convite é pessoal. Pedimos que venham apenas
+        os convidados, seus filhos e familiares. Obrigado pela compreensão! 💛
+      </p>
 
       <nav class="actions reveal" style="--d:5" aria-label="Ações do convite">
         <button class="action" type="button" data-modal="rsvp">
@@ -214,19 +218,19 @@
           <label><input type="radio" name="resposta" value="sim" checked /><span>👑 Estarei lá!</span></label>
           <label><input type="radio" name="resposta" value="nao" /><span>😢 Não poderei ir</span></label>
         </div>
-        <label>Recadinho para a Alice <small>(opcional)</small>
+        <label>Recadinho para a Jade Helena <small>(opcional)</small>
           <textarea name="recado" rows="2" placeholder="Deixe um carinho…"></textarea>
         </label>
         <p class="form-error" id="rsvpError" hidden>Por favor, informe seu nome.</p>
-        <button class="btn btn--primary" type="submit">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.6-.1 1.2z"/></svg>
-          Enviar confirmação
-        </button>
+        <p class="form-note">💛 Lembrete carinhoso: o convite é pessoal. Contem apenas vocês, seus filhos e familiares.</p>
+        <button class="btn btn--primary" type="submit">Enviar confirmação 👑</button>
       </form>
       <div class="thanks" id="rsvpThanks" hidden>
         <p class="thanks-title">Obrigado!</p>
-        <p>Sua resposta foi preparada no WhatsApp. É só tocar em <strong>enviar</strong> por lá. 💌</p>
-        <button class="btn btn--ghost" type="button" id="rsvpAgain">Editar resposta</button>
+        <p class="thanks-sub" id="rsvpThanksTitle"></p>
+        <p id="rsvpThanksText"></p>
+        <a class="btn btn--primary" id="rsvpWhats" target="_blank" rel="noopener" hidden>Avisar também pelo WhatsApp</a>
+        <button class="btn btn--ghost" type="button" id="rsvpAgain">Corrigir resposta</button>
       </div>
     </div>
   </div>
@@ -236,9 +240,9 @@
     <div class="modal-card">
       <button class="modal-close" type="button" data-close aria-label="Fechar">×</button>
       <svg class="modal-apple"><use href="#apple" /></svg>
-      <h3 id="locTitle">Espaço 7</h3>
+      <h3 id="locTitle">Local da festa</h3>
       <p class="modal-sub" id="locAddress"></p>
-      <p class="modal-sub small">Domingo, 15.01 · 18:00</p>
+      <p class="modal-sub small">Domingo, 31.01 · 18:00</p>
       <div class="map-frame">
         <iframe id="mapFrame" title="Mapa do local da festa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
