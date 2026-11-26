@@ -105,8 +105,7 @@
         </div>
         <div class="tools">
           <button class="btn btn--ghost" type="button" id="atualizar">↻ Atualizar</button>
-          <button class="btn btn--ghost" type="button" id="csv">⬇ Baixar planilha</button>
-          <button class="btn btn--ghost" type="button" onclick="print()">🖨 Imprimir</button>
+          <button class="btn btn--ghost" type="button" id="pdf">⬇ Baixar PDF</button>
           <button class="btn btn--ghost" type="button" id="sair">Sair</button>
         </div>
       </header>
@@ -143,6 +142,8 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <script>
     const SUPABASE_URL = "https://vosrrlnvvvfcfmbbqwdx.supabase.co";
     const SUPABASE_KEY = "sb_publishable_VTV0sb9TAoorMqIXGMlO4Q_AbrAKq9n"; // chave pública
@@ -231,22 +232,55 @@
       } catch (e) { alert("Não foi possível apagar: " + e.message); }
     }
 
-    function baixarCSV() {
-      const linhas = [["Nome", "Resposta", "Adultos", "Crianças", "Recado", "Enviado em"]];
-      dados.forEach((d) => linhas.push([
-        d.nome, d.vai ? "Vai" : "Não vai", d.vai ? d.adultos : 0, d.vai ? d.criancas : 0,
-        d.recado || "", new Date(d.created_at).toLocaleString("pt-BR"),
-      ]));
-      const csv = linhas.map((l) => l.map((v) => {
-        let s = String(v);
-        if (/^[=+\-@]/.test(s)) s = "'" + s; // evita fórmulas no Excel
-        return `"${s.replace(/"/g, '""')}"`;
-      }).join(";")).join("\r\n");
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
-      a.download = "lista-de-presenca-jade-helena.csv";
-      a.click();
-      URL.revokeObjectURL(a.href);
+    function baixarPDF() {
+      if (!window.jspdf) { alert("Não foi possível carregar o gerador de PDF. Verifique a internet."); return; }
+      // a fonte padrão do PDF não tem emojis: remove o que ela não consegue desenhar
+      const limpa = (s) => String(s || "").replace(/[^\u0000-ÿ–—…]/g, "").trim();
+      const doc = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
+      const W = doc.internal.pageSize.getWidth();
+
+      const vao = dados.filter((d) => d.vai);
+      const adultos = vao.reduce((s, d) => s + d.adultos, 0);
+      const criancas = vao.reduce((s, d) => s + d.criancas, 0);
+
+      doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.setTextColor(180, 18, 27);
+      doc.text("Lista de Presença", 40, 50);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(90, 58, 34);
+      doc.text("Aniversário da Jade Helena · 1 ano · 31/01 às 11:00", 40, 68);
+      doc.setFontSize(10);
+      doc.text(
+        `Pessoas confirmadas: ${adultos + criancas}  (${adultos} adultos, ${criancas} crianças)   ·   ` +
+        `Vão: ${vao.length}   ·   Não vão: ${dados.length - vao.length}`, 40, 86);
+
+      const ordem = [...dados].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      doc.autoTable({
+        startY: 100,
+        head: [["#", "Nome", "Resposta", "Adultos", "Crianças", "Recado", "Enviado em"]],
+        body: ordem.map((d, i) => [
+          i + 1, limpa(d.nome), d.vai ? "Vai" : "Não vai",
+          d.vai ? d.adultos : "–", d.vai ? d.criancas : "–",
+          limpa(d.recado),
+          new Date(d.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
+        ]),
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 5, textColor: [70, 45, 25], lineColor: [240, 220, 192], lineWidth: 0.5 },
+        headStyles: { fillColor: [212, 32, 44], textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [255, 250, 240] },
+        columnStyles: {
+          0: { halign: "center", cellWidth: 24 }, 2: { cellWidth: 52 },
+          3: { halign: "center", cellWidth: 46 }, 4: { halign: "center", cellWidth: 50 },
+          6: { cellWidth: 70 },
+        },
+        didParseCell: (c) => {
+          if (c.section === "body" && c.column.index === 2) c.cell.styles.textColor = c.cell.raw === "Vai" ? [46, 139, 87] : [212, 32, 44];
+        },
+        didDrawPage: () => {
+          doc.setFontSize(8); doc.setTextColor(150);
+          doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")} · meuconvite.art.br`, 40, doc.internal.pageSize.getHeight() - 20);
+        },
+        margin: { left: 40, right: 40 },
+        tableWidth: W - 80,
+      });
+      doc.save("lista-de-presenca-jade-helena.pdf");
     }
 
     function mostrarPainel() {
@@ -279,7 +313,7 @@
     });
 
     $("#atualizar").addEventListener("click", () => carregar().catch((e) => alert(e.message)));
-    $("#csv").addEventListener("click", baixarCSV);
+    $("#pdf").addEventListener("click", baixarPDF);
     $("#sair").addEventListener("click", sair);
     $("#busca").addEventListener("input", render);
     document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
