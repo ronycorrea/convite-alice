@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lista de Presença · Meu Convite</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #d4202c; --red-dark: #8e0b14; --gold: #d9a93a; --brown: #5a3a22;
+      --cream: #fffaf0; --line: #f0dcc0; --green: #2e8b57;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Quicksand", system-ui, sans-serif; color: var(--brown);
+      background: linear-gradient(180deg, #dcecf9, #f6f9fc 40%, #fff);
+      min-height: 100vh;
+    }
+    button, input { font: inherit; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 16px 60px; }
+    h1 { font-family: "Parisienne", cursive; font-weight: 400; color: var(--red); font-size: 40px; line-height: 1.1; }
+    .sub { font-weight: 600; opacity: .75; }
+
+    /* login */
+    .login {
+      max-width: 380px; margin: 12vh auto 0; background: var(--cream); border-radius: 22px; padding: 30px 24px;
+      box-shadow: 0 0 0 4px #fff, 0 0 0 6px var(--gold), 0 24px 50px rgba(60, 0, 10, .18); text-align: center;
+    }
+    .login form { display: grid; gap: 12px; margin-top: 18px; }
+    input[type=password], input[type=search] {
+      padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line); background: #fff; color: var(--brown); outline: none; font-weight: 600;
+    }
+    input:focus { border-color: var(--gold); }
+    .btn {
+      border: 0; cursor: pointer; border-radius: 999px; padding: 11px 18px; font-weight: 700;
+      background: linear-gradient(180deg, #ea3440, #b3121b); color: #fff; box-shadow: 0 3px 0 #7a0911;
+    }
+    .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a0911; }
+    .btn--ghost { background: #fff; color: var(--brown); border: 2px solid var(--gold); box-shadow: none; }
+    .btn[disabled] { opacity: .6; pointer-events: none; }
+    .erro { color: var(--red); font-weight: 700; font-size: 14px; }
+
+    /* painel */
+    header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 22px 0; }
+    .stat { background: #fff; border-radius: 16px; padding: 14px 16px; border: 2px solid #f6e6cc; }
+    .stat b { display: block; font-size: 30px; color: var(--red); line-height: 1.1; }
+    .stat span { font-weight: 600; font-size: 14px; opacity: .8; }
+    .stat--main { background: linear-gradient(180deg, #ea3440, #b3121b); border: 0; color: #fff; }
+    .stat--main b { color: #fff; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .filters input { flex: 1 1 220px; }
+    .chip { border: 2px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 14px; font-weight: 700; cursor: pointer; color: var(--brown); }
+    .chip.on { border-color: var(--red); color: var(--red); background: #fff0f0; }
+
+    .table-box { background: #fff; border-radius: 18px; overflow: auto; border: 2px solid #f6e6cc; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid #f6ecdc; vertical-align: top; }
+    th { background: var(--cream); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; }
+    td.n { text-align: center; font-variant-numeric: tabular-nums; }
+    th.n { text-align: center; }
+    tbody tr:nth-child(even) { background: #fffcf6; }
+    tbody tr:hover { background: #fff3e6; }
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .tag--sim { background: #e6f5ec; color: var(--green); }
+    .tag--nao { background: #fdecec; color: var(--red); }
+    .recado { max-width: 280px; font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+    .data { font-size: 13px; opacity: .75; white-space: nowrap; }
+    .del { border: 0; background: none; cursor: pointer; font-size: 18px; opacity: .45; }
+    .del:hover { opacity: 1; }
+    .vazio { padding: 40px; text-align: center; font-weight: 600; opacity: .7; }
+    .rodape { margin-top: 12px; font-size: 13px; opacity: .65; }
+
+    @media print {
+      body { background: #fff; }
+      .tools, .filters, .del, th:last-child, td:last-child { display: none !important; }
+      .table-box { border: 0; overflow: visible; }
+      table { min-width: 0; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <section class="login" id="login">
+      <h1>Lista de Presença</h1>
+      <p class="sub">Aniversário da Jade Helena · 1 ano</p>
+      <form id="loginForm">
+        <input type="password" id="senha" placeholder="Senha de acesso" autocomplete="current-password" required />
+        <button class="btn" type="submit" id="entrar">Entrar</button>
+        <p class="erro" id="loginErro" hidden></p>
+      </form>
+    </section>
+
+    <section id="painel" hidden>
+      <header class="top">
+        <div>
+          <h1>Lista de Presença</h1>
+          <p class="sub">Aniversário da Jade Helena · 1 ano · 31/01 às 18:00</p>
+        </div>
+        <div class="tools">
+          <button class="btn btn--ghost" type="button" id="atualizar">↻ Atualizar</button>
+          <button class="btn btn--ghost" type="button" id="csv">⬇ Baixar planilha</button>
+          <button class="btn btn--ghost" type="button" onclick="print()">🖨 Imprimir</button>
+          <button class="btn btn--ghost" type="button" id="sair">Sair</button>
+        </div>
+      </header>
+
+      <div class="stats">
+        <div class="stat stat--main"><b id="sTotal">0</b><span>pessoas confirmadas</span></div>
+        <div class="stat"><b id="sAdultos">0</b><span>adultos</span></div>
+        <div class="stat"><b id="sCriancas">0</b><span>crianças</span></div>
+        <div class="stat"><b id="sSim">0</b><span>respostas "vou"</span></div>
+        <div class="stat"><b id="sNao">0</b><span>não poderão ir</span></div>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="busca" placeholder="Buscar por nome…" />
+        <button class="chip on" type="button" data-f="todos">Todos</button>
+        <button class="chip" type="button" data-f="sim">Vão</button>
+        <button class="chip" type="button" data-f="nao">Não vão</button>
+      </div>
+
+      <div class="table-box">
+        <table>
+          <thead>
+            <tr>
+              <th class="n">#</th><th>Nome</th><th>Resposta</th>
+              <th class="n">Adultos</th><th class="n">Crianças</th>
+              <th>Recado</th><th>Enviado em</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="linhas"></tbody>
+        </table>
+        <p class="vazio" id="vazio" hidden>Nenhuma resposta ainda.</p>
+      </div>
+      <p class="rodape" id="rodape"></p>
+    </section>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://vosrrlnvvvfcfmbbqwdx.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_VTV0sb9TAoorMqIXGMlO4Q_AbrAKq9n"; // chave pública
+
+    const $ = (s) => document.querySelector(s);
+    let senha = sessionStorage.getItem("convite_admin") || "";
+    let dados = [];
+    let filtro = "todos";
+
+    async function rpc(fn, body) {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const txt = await r.text();
+      const json = txt ? JSON.parse(txt) : null;
+      if (!r.ok) {
+        const e = new Error((json && json.message) || `HTTP ${r.status}`);
+        e.status = r.status;
+        throw e;
+      }
+      return json;
+    }
+
+    async function carregar() {
+      dados = await rpc("listar_confirmacoes", { senha });
+      render();
+      $("#rodape").textContent = `Atualizado às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
+    function render() {
+      const vao = dados.filter((d) => d.vai);
+      const adultos = vao.reduce((s, d) => s + d.adultos, 0);
+      const criancas = vao.reduce((s, d) => s + d.criancas, 0);
+      $("#sTotal").textContent = adultos + criancas;
+      $("#sAdultos").textContent = adultos;
+      $("#sCriancas").textContent = criancas;
+      $("#sSim").textContent = vao.length;
+      $("#sNao").textContent = dados.length - vao.length;
+
+      const termo = $("#busca").value.trim().toLowerCase();
+      const lista = dados.filter((d) =>
+        (filtro === "todos" || (filtro === "sim") === d.vai) &&
+        (!termo || d.nome.toLowerCase().includes(termo))
+      );
+
+      const tbody = $("#linhas");
+      tbody.replaceChildren();
+      lista.forEach((d, i) => {
+        const tr = document.createElement("tr");
+        const cel = (texto, cls) => {
+          const td = document.createElement("td");
+          if (cls) td.className = cls;
+          td.textContent = texto; // textContent: protege contra HTML vindo do formulário
+          tr.appendChild(td);
+          return td;
+        };
+        cel(String(lista.length - i), "n");
+        cel(d.nome);
+        const tdResp = cel("");
+        const tag = document.createElement("span");
+        tag.className = "tag " + (d.vai ? "tag--sim" : "tag--nao");
+        tag.textContent = d.vai ? "Vai" : "Não vai";
+        tdResp.appendChild(tag);
+        cel(d.vai ? String(d.adultos) : "–", "n");
+        cel(d.vai ? String(d.criancas) : "–", "n");
+        cel(d.recado || "", "recado");
+        cel(new Date(d.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }), "data");
+        const tdDel = cel("");
+        const del = document.createElement("button");
+        del.className = "del"; del.type = "button"; del.title = "Apagar esta resposta"; del.textContent = "🗑";
+        del.addEventListener("click", () => apagar(d));
+        tdDel.appendChild(del);
+        tbody.appendChild(tr);
+      });
+      $("#vazio").hidden = lista.length > 0;
+      $("#vazio").textContent = dados.length ? "Nenhum resultado para esse filtro." : "Nenhuma resposta ainda.";
+    }
+
+    async function apagar(d) {
+      if (!confirm(`Apagar a resposta de "${d.nome}"? Isso não pode ser desfeito.`)) return;
+      try {
+        await rpc("apagar_confirmacao", { senha, confirmacao_id: d.id });
+        await carregar();
+      } catch (e) { alert("Não foi possível apagar: " + e.message); }
+    }
+
+    function baixarCSV() {
+      const linhas = [["Nome", "Resposta", "Adultos", "Crianças", "Recado", "Enviado em"]];
+      dados.forEach((d) => linhas.push([
+        d.nome, d.vai ? "Vai" : "Não vai", d.vai ? d.adultos : 0, d.vai ? d.criancas : 0,
+        d.recado || "", new Date(d.created_at).toLocaleString("pt-BR"),
+      ]));
+      const csv = linhas.map((l) => l.map((v) => {
+        let s = String(v);
+        if (/^[=+\-@]/.test(s)) s = "'" + s; // evita fórmulas no Excel
+        return `"${s.replace(/"/g, '""')}"`;
+      }).join(";")).join("\r\n");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+      a.download = "lista-de-presenca-jade-helena.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function mostrarPainel() {
+      $("#login").hidden = true;
+      $("#painel").hidden = false;
+    }
+    function sair() {
+      sessionStorage.removeItem("convite_admin");
+      senha = ""; dados = [];
+      $("#painel").hidden = true;
+      $("#login").hidden = false;
+      $("#senha").value = "";
+    }
+
+    $("#loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = $("#entrar");
+      btn.disabled = true; btn.textContent = "Entrando…";
+      $("#loginErro").hidden = true;
+      senha = $("#senha").value;
+      try {
+        await carregar();
+        sessionStorage.setItem("convite_admin", senha);
+        mostrarPainel();
+      } catch (err) {
+        $("#loginErro").textContent = err.status === 403 ? "Senha incorreta." : "Não foi possível conectar. Tente de novo.";
+        $("#loginErro").hidden = false;
+      }
+      btn.disabled = false; btn.textContent = "Entrar";
+    });
+
+    $("#atualizar").addEventListener("click", () => carregar().catch((e) => alert(e.message)));
+    $("#csv").addEventListener("click", baixarCSV);
+    $("#sair").addEventListener("click", sair);
+    $("#busca").addEventListener("input", render);
+    document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach((x) => x.classList.remove("on"));
+      c.classList.add("on");
+      filtro = c.dataset.f;
+      render();
+    }));
+
+    // atualiza sozinho a cada 60 s enquanto a página estiver aberta
+    setInterval(() => { if (senha && !document.hidden && !$("#painel").hidden) carregar().catch(() => {}); }, 60000);
+
+    // sessão já aberta nesta aba
+    if (senha) carregar().then(mostrarPainel).catch(sair);
+  </script>
+</body>
+</html>
